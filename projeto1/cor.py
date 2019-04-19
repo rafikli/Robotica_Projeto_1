@@ -15,11 +15,12 @@ import cormodule
 
 
 bridge = CvBridge()
-
+procurando = True
+achado = False
 cv_image = None
 media = []
 centro = []
-atraso = 1.5E9 # 1 segundo e meio. Em nanossegundos
+atraso = 0.3E9 # 1 segundo e meio. Em nanossegundos
 centro_img = (640/2,480/2)
 area = 0.0 # Variavel com a area do maior contorno
 # Só usar se os relógios ROS da Raspberry e do Linux desktop estiverem sincronizados. 
@@ -78,17 +79,26 @@ if __name__=="__main__":
 		while not rospy.is_shutdown():
 			vel = Twist(Vector3(0,0,0), Vector3(0,0,0))
 			if len(media) != 0 and len(centro) != 0:
-				tresh = 15
+				tresh = 30
 				print("Centro dos vermelhos: {0}, {1}".format(centro[0], centro[1]))
-				if  centro[1]+tresh > media[0]:
-					vel = Twist(Vector3(0,0,0), Vector3(0,0,-0.3))
-					velocidade_saida.publish(vel)
-					print(1)
-				elif centro[1]-tresh < media[0]:
-					print(2)
-					vel = Twist(Vector3(0,0,0), Vector3(0,0,0.3))
-					velocidade_saida.publish(vel)
-			rospy.sleep(0.1)
+				if procurando:
+					if  centro[1]-tresh > media[0]:
+						vel = Twist(Vector3(0,0,0), Vector3(0,0,-0.3))
+						velocidade_saida.publish(vel)
+					elif centro[1]+tresh < media[0]:
+						vel = Twist(Vector3(0,0,0), Vector3(0,0,0.3))
+						velocidade_saida.publish(vel)
+					elif media[0] < centro[1]+tresh and media[0] > centro[1]-tresh:
+						procurando = False
+						achado = True
+				if achado:
+					if centro[1]-tresh > media[0] or centro[1]+tresh < media[0]:
+						achado = False
+						procurando =True
+					else:
+						vel = Twist(Vector3(0.1,0,0), Vector3(0,0,0))
+						velocidade_saida.publish(vel) 
+			rospy.sleep(0.01)		
 		
 
 	except rospy.ROSInterruptException:
