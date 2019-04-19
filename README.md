@@ -2,6 +2,7 @@
 Insper - Robotica Computacional - 2019.1
 
 Alunos: Rafael Argodizo Libertini & Gabriel Magalhães Duarte
+
 Professores: Fabio Roberto de Miranda & Antonio Henrique Pinto Selvatici
 
 Link para video:
